@@ -8,16 +8,16 @@ public class Cliente {
         
         int serverPort = 4000;             // Porta do servidor
         String serveIp = "127.0.0.1";      // IP do Servidor
+        String escolha;
 
         //Funções de Envio de dados
         Funcoes ClienteFuncao = new Funcoes(); //Funções Necessarias
 
-        while (true) { //Loop Basico para o Cliente ficar sempre em conexão com o servidor
+        do { //Loop Basico para o Cliente ficar sempre em conexão com o servidor
             try(Socket socket = new Socket(serveIp, serverPort)) {
                 new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
                 
                 // Conectando ao servidor
-                
                 System.out.println("Conectado ao servidor.");
 
                 // Solicitação para selecionar um arquivo
@@ -35,14 +35,15 @@ public class Cliente {
                 ClienteFuncao.enviarArquivo(socket, clientName, filePath);
 
                 // Fechando a conexão
-                socket.close();
-                System.out.println("Conexão encerrada.");
+                System.out.println("Conexão encerrada!");
 
-                br.readLine();
+                System.out.print("\nÉ de seu desejo Iniciar uma Nova Conexão ou Finalizar à " 
+                    + "Aplicação?\n -> Digite qualquer digito para Iniciar uma Nova conexão ou '0' para Finalizar Conexão: ");
+                escolha = br.readLine();
 
             } catch (IOException e) { // Caso não haja conexão com o servidor
                 System.out.println("Servidor não Encontrado."); break;
             }
-        }
+        }while(!escolha.equals("0"));
     }
 }
