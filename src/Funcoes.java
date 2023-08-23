@@ -10,6 +10,8 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
+
 public class Funcoes {
     private static Map<String, String> clientFolders = new HashMap<>(); // Mapear o nome do cliente para a pasta
 
@@ -19,7 +21,8 @@ public class Funcoes {
 
         // Receber o nome do cliente
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String clientName = br.readLine();
+        String clientName = new String(br.readLine().getBytes(), "UTF-8");
+
 
         // Verificar se a pasta do cliente já foi criada
         String saveDir = clientFolders.get(clientName);
@@ -37,14 +40,19 @@ public class Funcoes {
         }
 
         // Receber o nome do arquivo
-        String fileName = br.readLine();
+        //String fileName = br.readLine();
+        String fileName = new String(br.readLine().getBytes(), "UTF-8");
+
 
         // Criar um novo arquivo com o nome recebido
         File file = new File(saveDir + fileName);
+        
         FileOutputStream fos = new FileOutputStream(file);
 
         byte[] buffer = new byte[4096];
+        
         int bytesRead;
+        
         while ((bytesRead = is.read(buffer)) != -1) {
             fos.write(buffer, 0, bytesRead);
         }
@@ -63,37 +71,38 @@ public class Funcoes {
         File arquivo = new File(filePath); // Usando a Função File.
 
         if (!arquivo.exists()) {           //Caso o Arquivo não exista ou não encontrado
-            System.out.println("\n ->Arquivo não encontrado.\n");
-            return;
+            JOptionPane.showMessageDialog(null, "Arquivo não encontrado.");
         }
 
-        // Enviar o nome do cliente antes do nome do arquivo e dos dados do arquivo
-        OutputStream os = socket.getOutputStream();
-        os.write(clientName.getBytes());
-        os.write("\n".getBytes());
+        else{
+            // Enviar o nome do cliente antes do nome do arquivo e dos dados do arquivo
+            OutputStream os = socket.getOutputStream();
+            os.write(clientName.getBytes("UTF-8"));
+            os.write("\n".getBytes());
 
-        //Copia o nome do arquivo para a string fileName para enviar ao servidor.
-        String fileName = arquivo.getName();
-        os.write(fileName.getBytes());
-        os.write("\n".getBytes());
+            //Copia o nome do arquivo para a string fileName para enviar ao servidor.
+            String fileName = arquivo.getName();
+            os.write(fileName.getBytes("UTF-8"));
+            os.write("\n".getBytes());
 
-        // Reseve o Arquivo para preparar o envio 
-        FileInputStream fis = new FileInputStream(arquivo); 
+            // Reseve o Arquivo para preparar o envio 
+            FileInputStream fis = new FileInputStream(arquivo); 
 
-        byte[] buffer = new byte[4096]; //buffer usado para armazenar temporariamente os bytes lidos do arquivo antes de serem enviados
-        
-        //Quarda a quantidade de bytes lidos
-        int bytesRead;
+            byte[] buffer = new byte[4096]; //buffer usado para armazenar temporariamente os bytes lidos do arquivo antes de serem enviados
+            
+            //Quarda a quantidade de bytes lidos
+            int bytesRead;
 
-        //Faz a leiturua dos byte do arquivo e envia ao servido e finaliza quando chegar em '-1'
-        while ((bytesRead = fis.read(buffer)) != -1) {
-            os.write(buffer, 0, bytesRead);
+            //Faz a leiturua dos byte do arquivo e envia ao servido e finaliza quando chegar em '-1'
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+
+            os.flush();
+            fis.close();
+            
+            JOptionPane.showMessageDialog(null, "Arquivo enviado com sucesso.");
         }
-
-        os.flush();
-        fis.close();
-        
-        System.out.println("\n ->Arquivo enviado com sucesso.\n");
     }
 
 }
